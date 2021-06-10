@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">SmartTravelGuide</string>
+    <string name="email">Email</string>
+    <string name="password"> Password</string>
+    <string name="login"> Login </string>
+    <string name="title_activity_login">Login </string>
+    <string name="forget"> Forget Password </string>
+    <string name="signin"> Register </string>
+    <string name="title_activity_register">Register</string>
+    <string name="title_activity_forget">Forget Password</string>
+    <string name="title_activity_register_user">RegisterUser</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+
+    <string name="mapboxtoken">sk.eyJ1IjoiYXl1c2hyYWkiLCJhIjoiY2tndnRoMnI5MDNvcDJzcGZxaDZldnBoNCJ9.jdxw4WQSAtGENZq_-uNabA</string>
+</resources>

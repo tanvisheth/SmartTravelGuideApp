@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.smarttravelguide">
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/icon"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/icon_round"
+        android:supportsRtl="true"
+        android:testOnly="false"
+        android:theme="@style/AppTheme">
+        <activity android:name=".MapActivity">
+
+        </activity>
+        <activity android:name=".DashBoardActivity"></activity>
+        <activity android:name=".AddSpotActivity" />
+        <activity android:name=".RegisterUser" />
+        <activity android:name=".AboutActivity" />
+        <activity
+            android:name=".ForgetActivity"
+            android:label="@string/title_activity_forget" />
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/title_activity_login" />
+        <activity android:name=".EducationalActivity" />
+        <activity android:name=".WildLifeActivity" />
+        <activity android:name=".IslandActivity" />
+        <activity android:name=".ReligiousActivity" />
+        <activity android:name=".MonumentActivity" />
+        <activity android:name=".WaterfallActivity" />
+        <activity android:name=".HillActivity" />
+        <activity android:name=".BeachActivity" />
+        <activity android:name=".MainActivity" >
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".FetchAddressIntentService" />
+    </application>
+
+</manifest>

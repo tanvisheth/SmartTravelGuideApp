@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+
+tools:context=".AboutActivity">
+
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:layout_marginTop="50dp"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView16"
+            android:layout_width="266dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="20dp"
+            android:text=" SMART TRAVEL GUIDE APP "
+            android:textColor="#800517"
+            android:textSize="30dp" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" "
+            android:textColor="#800517"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/textView13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:text="     The main objective of this Android project is to provide rich and relevant travel-related information to users on the move. The idea is to create a smart travel guide app that users can access anytime and from anywhere.
+  "
+            android:textSize="25dp"
+            android:textStyle="bold|italic" />
+
+        <TextView
+            android:id="@+id/dsds"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="10dp" />
+
+        <TextView
+            android:id="@+id/tvq33"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+
+            android:text="     While visiting new places, tourists often have a complaint that they cannot access and obtain travel information timely and on-the-go. This smart travel guide app seeks to solve that problem by generating feature-rich texts, pictures and any other guidance-related details requested by the users so that they can explore tourist destinations better.  "
+            android:textSize="25dp"
+            android:textStyle="bold|italic" />
+    </LinearLayout>
+</ScrollView>
+</RelativeLayout>

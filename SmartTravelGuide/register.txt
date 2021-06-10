@@ -1,0 +1,245 @@
+RegisterUser
+
+package com.example.smarttravelguide;
+
+import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.ResultReceiver;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+public class RegisterUser extends AboutMenu {
+    EditText name,phone,email,pass,cnfpass,add;
+    Button Register,locatebtn;
+    DatabaseReference ref;
+    Users users;
+    private static final int REQUEST_CODE_LOCATION_PERMISSION = 1;
+    private ResultReceiver resultReceiver;
+    private static final int REQUEST_CALL = 1;
+    String address;
+    double soslat, soslon;
+    private SharedPreferences file;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_register_user);
+
+        name=findViewById(R.id.txtname);
+        add=findViewById(R.id.txtaddress);
+        phone=findViewById(R.id.txtmobile);
+        email=findViewById(R.id.txtemail);
+        pass=findViewById(R.id.txtpass);
+        cnfpass=findViewById(R.id.txtcnfpass);
+        locatebtn=findViewById(R.id.locatebtn);
+        Register=findViewById(R.id.btnRegister);
+
+        Register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                users=new Users();
+                ref= FirebaseDatabase.getInstance().getReference().child("Users");
+                Long ph=Long.parseLong(phone.getText().toString().trim());
+                users.setName(name.getText().toString());
+                users.setAddress(add.getText().toString());
+                users.setEmail(email.getText().toString());
+                users.setPassword(pass.getText().toString());
+                users.setPhone(ph);
+                ref.push().setValue(users);
+                Toast.makeText(getApplicationContext(),"Register Successful",Toast.LENGTH_LONG).show();
+            }
+        });
+        if (ContextCompat.checkSelfPermission(
+                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(RegisterUser.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_CODE_LOCATION_PERMISSION);
+        } else {
+            getCurrentLocation();
+        }
+
+
+        resultReceiver = new AddressResultReceiver(new Handler());
+        file = getSharedPreferences("file", Activity.MODE_PRIVATE);
+
+        locatebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getCurrentLocation();
+            }
+        });
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == REQUEST_CODE_LOCATION_PERMISSION && grantResults.length>0){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                getCurrentLocation();
+            }else{
+                Toast.makeText(this, "Permsission Denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void getCurrentLocation() {
+
+        final LocationRequest locationRequest = new LocationRequest();
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(3000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        if (ActivityCompat.checkSelfPermission(RegisterUser.this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        LocationServices.getFusedLocationProviderClient(getApplicationContext())
+                .requestLocationUpdates(locationRequest, new LocationCallback() {
+
+                    @Override
+                    public void onLocationResult(LocationResult locationResult) {
+                        super.onLocationResult(locationResult);
+                        LocationServices.getFusedLocationProviderClient(getApplicationContext()).removeLocationUpdates(this);
+                        if (locationResult != null && locationResult.getLocations().size() > 0) {
+                            int latestLocationIndex = locationResult.getLocations().size() - 1;
+                            soslat = locationResult.getLocations().get(latestLocationIndex).getLatitude();
+                            soslon = locationResult.getLocations().get(latestLocationIndex).getLongitude();
+
+                            Log.e("Lat",String.valueOf(soslat));
+                            Log.e("lon",String.valueOf(soslon));
+
+                            Location location = new Location("ProvideNA");
+                            location.setLatitude(soslat);
+                            location.setLongitude(soslon);
+
+                            fetchAddressFromLatLong(location);
+                        }
+                    }
+                }, Looper.getMainLooper());
+    }
+
+    private class AddressResultReceiver extends ResultReceiver {
+        AddressResultReceiver(Handler handler){
+            super(handler);
+        } protected void onReceiveResult(int resultCode,Bundle resultData){
+            super.onReceiveResult(resultCode,resultData);
+            if(resultCode == Constants.SUCCESS_RESULT){
+                address = resultData.getString(Constants.RESULT_DATA_KEY);
+                add.setText(address);
+                file.edit().putString("Current_address",address).apply();
+                Log.e("RESULT",address);
+
+            }else{
+                Toast.makeText(getApplicationContext(),resultData.getString(Constants.RESULT_DATA_KEY),Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private void fetchAddressFromLatLong(Location location) {
+        Intent intent=new Intent(RegisterUser.this, FetchAddressIntentService.class);
+        intent.putExtra(Constants.RECEIVER,resultReceiver);
+        intent.putExtra(Constants.LOCATION_DATA_EXTRA,location);
+        getApplicationContext().startService(intent);
+    }
+}
+
+
+Constants.java
+
+package com.example.smarttravelguide;
+
+public class Constants {
+    private static final String PACKAGE_NAME="com.example.smarttravelguide";
+    static final String RESULT_DATA_KEY=PACKAGE_NAME+".RESULT_DATA_KEY";
+    static final String RECEIVER=PACKAGE_NAME+".RECEIVER";
+    static final String LOCATION_DATA_EXTRA=PACKAGE_NAME+".LOCATION_DATA_EXTRA";
+    static final int SUCCESS_RESULT=1;
+    static final int FAILURE_RESULT=0;
+}
+
+FetchAddressIntentService.java
+
+package com.example.smarttravelguide;
+
+import android.app.IntentService;
+import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.ResultReceiver;
+import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+
+public class FetchAddressIntentService extends IntentService {
+    private ResultReceiver resultReceiver;
+    public FetchAddressIntentService()
+    {
+        super("FetchAddressIntentService");
+    }
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @Override
+    protected void onHandleIntent(@Nullable Intent intent) {
+        if(intent !=null) {
+            String errorMessage = "";
+            resultReceiver = intent.getParcelableExtra(Constants.RECEIVER);
+            Location location = intent.getParcelableExtra(Constants.LOCATION_DATA_EXTRA);
+            if (location == null) {
+                return;
+            }
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            List<Address> addresses = null;
+            try {
+                addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            } catch (Exception exception) {
+                errorMessage = exception.getMessage();
+            }
+            if (addresses == null || addresses.isEmpty()) {
+                deliverResultReceiver(Constants.FAILURE_RESULT, errorMessage);
+            } else {
+                Address address = addresses.get(0);
+                ArrayList<String> addressFragments = new ArrayList<>();
+                for (int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
+                    addressFragments.add(address.getAddressLine(i));
+                }
+                deliverResultReceiver(Constants.SUCCESS_RESULT, TextUtils.join(Objects.requireNonNull(System.getProperty("line.separator"))
+                        , addressFragments));
+            }
+        }
+    }
+    private void deliverResultReceiver(int resultCode,String addressMessage)
+    {
+        Bundle bundle=new Bundle();
+        bundle.putString(Constants.RESULT_DATA_KEY,addressMessage);
+        resultReceiver.send(resultCode,bundle);
+    }
+}
+
